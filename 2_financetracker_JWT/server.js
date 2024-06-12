@@ -36,14 +36,14 @@ app.get("/login", async (req, res) => {
   res.json({ success: "token is valid" });
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  const userStr = username + ":" + password;
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   db.get(
-    "SELECT username, password FROM users WHERE username = ?",
+    "SELECT username, hashedPassword FROM users WHERE username = ?",
     [username],
-    (err, row) => {
+    async (err, row) => {
       if (err) {
         console.error("Could not find user", err);
         return res
@@ -53,8 +53,8 @@ app.post("/login", (req, res) => {
         if (row === undefined) {
           // user not found (make user)
           db.run(
-            "INSERT INTO users (username, password) VALUES(?,?)",
-            [username, password],
+            "INSERT INTO users (username, hashedPassword) VALUES(?,?)",
+            [username, hashedPassword],
             (insertErr) => {
               if (insertErr) {
                 console.error("Could not insert user", insertErr);
@@ -63,7 +63,7 @@ app.post("/login", (req, res) => {
                   .json({ success: false, message: "Could not insert user" });
               }
               const accessToken = jwt.sign(
-                { userStr },
+                { username },
                 process.env.ACCESS_TOKEN_SECRET
               );
               return res.json({ success: true, accessToken });
@@ -72,10 +72,11 @@ app.post("/login", (req, res) => {
         } else {
           // user found (sign in)
           console.log("User already exists, checking password...");
-          if (password === row.password) {
+          const match = await bcrypt.compare(password, row.hashedPassword);
+          if (match) {
             console.log("Password matches!");
             const accessToken = jwt.sign(
-              { userStr },
+              { username },
               process.env.ACCESS_TOKEN_SECRET
             );
             return res.json({ success: true, accessToken });
@@ -96,7 +97,7 @@ app.get("/expenses", async (req, res) => {
   const auth = await authenticateToken(accessToken);
   if (auth) {
     const decoded = jwt.decode(accessToken);
-    const username = decoded["userStr"].split(":")[0];
+    const username = decoded["username"];
     db.all(
       `SELECT * FROM expenses WHERE author = ?`,
       [username],
@@ -120,7 +121,7 @@ app.post("/expenses", (req, res) => {
 
   if (auth) {
     const decoded = jwt.decode(accessToken);
-    const username = decoded["userStr"].split(":")[0];
+    const username = decoded["username"];
     db.run(
       `INSERT INTO expenses (title, desc, amount, date, category, author) VALUES (?, ?, ?, ?, ?, ?)`,
       [title, desc, amount, date, category, username],
@@ -143,7 +144,7 @@ app.delete("/expenses", (req, res) => {
   const accessToken = req.headers.authorization.split(" ")[1];
   const auth = authenticateToken(accessToken);
   const decoded = jwt.decode(accessToken);
-  const username = decoded["userStr"].split(":")[0];
+  const username = decoded["username"];
 
   if (auth) {
     db.run(

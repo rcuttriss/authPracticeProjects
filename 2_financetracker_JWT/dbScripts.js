@@ -36,7 +36,7 @@ const createUsersTable = () => {
     `CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT,
-        password TEXT
+        hashedPassword TEXT
       )`,
     (err) => {
       if (err) {
@@ -49,5 +49,5 @@ const createUsersTable = () => {
 };
 
 connectDB();
-// createExpensesTable();
-// createUsersTable();
+createExpensesTable();
+createUsersTable();
