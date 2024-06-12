@@ -1,0 +1,38 @@
+### 
+GET http://localhost:3000/login 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyU3RyIjoiZGViYmllOnF3ZXJ0eSIsImlhdCI6MTcxODE1MzE2OH0.9tb44MwCFd5VBOZTTpmy6eXgGIavbpd8Z3uwwmFolLs
+###
+
+POST http://localhost:3000/login 
+Content-Type: application/json
+
+{
+    "username": "debbie",
+    "password": "qwerty"
+
+}
+
+###
+
+GET http://localhost:3000/expenses
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyU3RyIjoiZGViYmllOnF3ZXJ0eSIsImlhdCI6MTcxODE1MzE2OH0.9tb44MwCFd5VBOZTTpmy6eXgGIavbpd8Z3uwwmFolLs
+
+###
+
+POST http://localhost:3000/expenses
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyU3RyIjoiZGViYmllOnF3ZXJ0eSIsImlhdCI6MTcxODE1MTM4M30.D1a2YQH9TVXouAK82meKcNYqfgIKMz3EUcgZhtVDMbs
+Content-Type: application/json
+
+{ "title" : "day care",
+  "desc" : "payment for day care",
+   "amount": 500,
+    "date" : "",
+     "category" : "childcare"}
+
+###
+
+DELETE http://localhost:3000/expenses
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyU3RyIjoiZGViYmllOnF3ZXJ0eSIsImlhdCI6MTcxODE1MzE2OH0.9tb44MwCFd5VBOZTTpmy6eXgGIavbpd8Z3uwwmFolLs
+Content-Type: application/json
+
+{ "title" : "day care"}
